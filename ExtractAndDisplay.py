@@ -6,28 +6,29 @@ import numpy as np
 import base64
 import queue
 
+
 def extractFrames(fileName, outputBuffer):
-    # Initialize frame count 
+    # Initialize frame count
     count = 0
 
     # open video file
     vidcap = cv2.VideoCapture(fileName)
 
     # read first image
-    success,image = vidcap.read()
-    
+    success, image = vidcap.read()
+
     print("Reading frame {} {} ".format(count, success))
     while success:
         # get a jpg encoded frame
         success, jpgImage = cv2.imencode('.jpg', image)
 
-        #encode the frame as base 64 to make debugging easier
+        # encode the frame as base 64 to make debugging easier
         jpgAsText = base64.b64encode(jpgImage)
 
         # add the frame to the buffer
         outputBuffer.put(jpgAsText)
-       
-        success,image = vidcap.read()
+
+        success, image = vidcap.read()
         print('Reading frame {} {}'.format(count, success))
         count += 1
 
@@ -43,16 +44,16 @@ def displayFrames(inputBuffer):
         # get the next frame
         frameAsText = inputBuffer.get()
 
-        # decode the frame 
+        # decode the frame
         jpgRawImage = base64.b64decode(frameAsText)
 
         # convert the raw frame to a numpy array
         jpgImage = np.asarray(bytearray(jpgRawImage), dtype=np.uint8)
-        
-        # get a jpg encoded frame
-        img = cv2.imdecode( jpgImage ,cv2.IMREAD_UNCHANGED)
 
-        print("Displaying frame {}".format(count))        
+        # get a jpg encoded frame
+        img = cv2.imdecode(jpgImage, cv2.IMREAD_UNCHANGED)
+
+        print("Displaying frame {}".format(count))
 
         # display the image in a window called "video" and wait 42ms
         # before displaying the next frame
@@ -66,15 +67,15 @@ def displayFrames(inputBuffer):
     # cleanup the windows
     cv2.destroyAllWindows()
 
+
 # filename of clip to load
 filename = 'clip.mp4'
 
-# shared queue  
+# shared queue
 extractionQueue = queue.Queue()
 
 # extract the frames
-extractFrames(filename,extractionQueue)
+extractFrames(filename, extractionQueue)
 
 # display the frames
 displayFrames(extractionQueue)
-
